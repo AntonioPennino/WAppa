@@ -1,0 +1,41 @@
+@page
+@model backend.Pages.ItemsModel
+@{
+    ViewData["Title"] = "Gestione Elementi";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-page="Items/Create" class="btn btn-primary">Crea Nuovo</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Descrizione</th>
+            <th>Data Creazione</th>
+            <th>Completato</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.CreatedDate.ToShortDateString()</td>
+                <td>@(item.IsComplete ? "Sì" : "No")</td>
+                <td>
+                    <a asp-page="./Items/Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Modifica</a>
+                    <a asp-page="./Items/Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Dettagli</a>
+                    <a asp-page="./Items/Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Elimina</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
