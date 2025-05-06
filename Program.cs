@@ -27,6 +27,9 @@ builder.Services.AddScoped<IGeocodingService, GeocodingService>();
 // Registra il servizio di autenticazione
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Registra il servizio meteo
+builder.Services.AddScoped<IWeatherService, WeatherService>();
+
 // Configurazione dell'autenticazione JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

@@ -12,13 +12,11 @@ namespace WeatherApp.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IGeocodingService _geocodingService;
 
-        // Modifica il costruttore per iniettare anche IGeocodingService
-        public AuthController(IAuthService authService, IGeocodingService geocodingService)
+        // Costruttore riportato alla sua forma originale, solo con IAuthService
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
-            _geocodingService = geocodingService;
         }
 
         [HttpPost("register")]
@@ -46,24 +44,6 @@ namespace WeatherApp.Controllers
             return Ok(response);
         }
 
-        // Nuovo endpoint di test per il servizio di geocodifica
-        // Esempio: GET /api/auth/geocode?query=Roma
-        [HttpGet("geocode")]
-        public async Task<IActionResult> TestGeocode([FromQuery] string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return BadRequest(new { success = false, message = "Query parameter is required." });
-            }
-
-            var response = await _geocodingService.GetCoordinatesAsync(query);
-
-            if (!response.Success || response.Data == null)
-            {
-                return NotFound(response);
-            }
-
-            return Ok(response);
-        }
+        // Il metodo TestWeather e la dipendenza IWeatherService sono stati rimossi
     }
 }
