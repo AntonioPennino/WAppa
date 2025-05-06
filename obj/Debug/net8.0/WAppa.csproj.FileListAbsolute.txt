@@ -158,3 +158,13 @@
 /Users/marianoiscaro/Documents/GitHub/WAppa/obj/Debug/net8.0/WAppa.pdb
 /Users/marianoiscaro/Documents/GitHub/WAppa/obj/Debug/net8.0/WAppa.genruntimeconfig.cache
 /Users/marianoiscaro/Documents/GitHub/WAppa/obj/Debug/net8.0/ref/WAppa.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.Bcl.Memory.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
