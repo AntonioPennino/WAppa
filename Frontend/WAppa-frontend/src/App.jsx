@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import './App.css';
+
+// Importa i nuovi componenti pagina
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // In futuro, qui potremmo avere lo stato dell'utente per mostrare/nascondere link
+  // const isAuthenticated = false; // Esempio
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="App">
+        <nav style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
+          <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', justifyContent: 'center', gap: '15px' }}>
+            <li><Link to="/">Home</Link></li>
+            {/* Logica condizionale per i link di navigazione in base all'autenticazione */}
+            {/* {isAuthenticated ? (
+              <>
+                <li><Link to="/dashboard">Dashboard</Link></li>
+                <li><button onClick={handleLogout}>Logout</button></li> 
+              </>
+            ) : (
+              <> */}
+                <li><Link to="/login">Login</Link></li>
+                <li><Link to="/register">Register</Link></li>
+              {/* </>
+            )} */}
+             <li><Link to="/dashboard">Dashboard (Accesso temporaneo per test)</Link></li> {/* Rimuovere/proteggere in seguito */}
+          </ul>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          {/* La route /dashboard dovrà essere protetta in futuro */}
+          <Route path="/dashboard" element={<DashboardPage />} /> 
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
