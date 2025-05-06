@@ -12,23 +12,26 @@ namespace WeatherApp.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IGeocodingService _geocodingService;
 
-        public AuthController(IAuthService authService)
+        // Modifica il costruttore per iniettare anche IGeocodingService
+        public AuthController(IAuthService authService, IGeocodingService geocodingService)
         {
             _authService = authService;
+            _geocodingService = geocodingService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterDto request)
         {
-            var user = new User { Username = request.Username }; // Mappiamo dal DTO al modello User
+            var user = new User { Username = request.Username };
             var response = await _authService.Register(user, request.Password);
 
             if (!response.Success)
             {
-                return BadRequest(response); // Restituisce un 400 con il messaggio di errore
+                return BadRequest(response);
             }
-            return Ok(response); // Restituisce un 200 con i dati (ID utente)
+            return Ok(response);
         }
 
         [HttpPost("login")]
@@ -38,9 +41,29 @@ namespace WeatherApp.Controllers
 
             if (!response.Success)
             {
-                return Unauthorized(response); // Restituisce un 401 con il messaggio di errore
+                return Unauthorized(response);
             }
-            return Ok(response); // Restituisce un 200 con il token e username
+            return Ok(response);
+        }
+
+        // Nuovo endpoint di test per il servizio di geocodifica
+        // Esempio: GET /api/auth/geocode?query=Roma
+        [HttpGet("geocode")]
+        public async Task<IActionResult> TestGeocode([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest(new { success = false, message = "Query parameter is required." });
+            }
+
+            var response = await _geocodingService.GetCoordinatesAsync(query);
+
+            if (!response.Success || response.Data == null)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer; // Aggiungi questo
 using Microsoft.IdentityModel.Tokens; // Aggiungi questo
 using System.Text; // Aggiungi questo
 using Microsoft.OpenApi.Models; // Per la configurazione di Swagger per JWT
+using WeatherApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,12 @@ builder.Services.AddControllers();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=weatherapp.db";
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
+
+// Registra IHttpClientFactory
+builder.Services.AddHttpClient(); // Registrazione base
+
+// Registra il servizio di geocodifica
+builder.Services.AddScoped<IGeocodingService, GeocodingService>();
 
 // Registra il servizio di autenticazione
 builder.Services.AddScoped<IAuthService, AuthService>();

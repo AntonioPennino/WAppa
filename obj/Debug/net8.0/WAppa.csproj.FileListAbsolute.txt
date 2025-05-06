@@ -168,3 +168,4 @@
 /Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/System.Net.Http.Json.dll

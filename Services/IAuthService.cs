@@ -11,12 +11,4 @@ namespace WeatherApp.Services
         Task<ServiceResponse<AuthResponseDto>> Login(string username, string password);
         // Task<bool> UserExists(string username); // Potrebbe essere utile, ma per ora lo mettiamo nel register
     }
-
-    // Una classe generica per le risposte dei servizi, utile per standardizzare
-    public class ServiceResponse<T>
-    {
-        public T? Data { get; set; }
-        public bool Success { get; set; } = true;
-        public string Message { get; set; } = string.Empty;
-    }
 }
