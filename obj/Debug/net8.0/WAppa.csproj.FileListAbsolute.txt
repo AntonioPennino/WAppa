@@ -169,3 +169,5 @@
 /Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
 /Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/System.Net.Http.Json.dll
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Frontend/WAppa-frontend/package-lock.json
+/Users/marianoiscaro/Documents/GitHub/WAppa/bin/Debug/net8.0/Frontend/WAppa-frontend/package.json

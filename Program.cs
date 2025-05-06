@@ -1,16 +1,32 @@
 // Program.cs
 using Microsoft.EntityFrameworkCore;
 using WeatherApp.Data;
-using WeatherApp.Services; // Aggiungi questo per IAuthService e AuthService
-using Microsoft.AspNetCore.Authentication.JwtBearer; // Aggiungi questo
-using Microsoft.IdentityModel.Tokens; // Aggiungi questo
-using System.Text; // Aggiungi questo
-using Microsoft.OpenApi.Models; // Per la configurazione di Swagger per JWT
-using WeatherApp.Services;
+// using WeatherApp.Services; // La direttiva using per 'WeatherApp.Services' è già presente più avanti
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
+using WeatherApp.Services; // Qui è presente, quindi quella sopra era duplicata
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Inizio Sezione Servizi ---
+
+// Definisci un nome per la policy CORS per poterla riutilizzare
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:5173") // L'URL del tuo frontend React (server di sviluppo Vite)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                          // Per produzione, dovrai aggiungere l'URL effettivo del tuo frontend deployato
+                          // Esempio: policy.WithOrigins("http://localhost:5173", "https://tua-app-meteo.com")
+                      });
+});
 
 builder.Services.AddControllers();
 
@@ -19,7 +35,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
 // Registra IHttpClientFactory
-builder.Services.AddHttpClient(); // Registrazione base
+builder.Services.AddHttpClient();
 
 // Registra il servizio di geocodifica
 builder.Services.AddScoped<IGeocodingService, GeocodingService>();
@@ -42,8 +58,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
-            ValidateIssuer = false, // Per semplicità, non validiamo l'issuer in questo esempio
-            ValidateAudience = false // Per semplicità, non validiamo l'audience in questo esempio
+            ValidateIssuer = false,
+            ValidateAudience = false
         };
     });
 
@@ -54,7 +70,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WeatherApp API", Version = "v1" });
 
-    // Definisci lo schema di sicurezza per JWT
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Autorizzazione JWT con Bearer token. Esempio: \"Bearer {token}\"",
@@ -64,7 +79,6 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    // Aggiungi un requisito di sicurezza globale per usare lo schema Bearer
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         {
@@ -97,28 +111,33 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherApp API V1");
         // Opzionale: per fare il logout da swagger e resettare il token
-        c.InjectStylesheet("/swagger-ui/custom.css"); // (dovrai creare questo file css)
+        // c.InjectStylesheet("/swagger-ui/custom.css"); // Se decidi di creare questo file
     });
+    app.UseDeveloperExceptionPage(); // Aggiunto per vedere errori dettagliati in sviluppo
+}
+else
+{
+    // Potresti aggiungere un gestore di eccezioni globale qui per la produzione
+    // app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
-// IMPORTANTE: Aggiungi queste righe ORA
-app.UseAuthentication(); // Deve venire PRIMA di UseAuthorization
+// IMPORTANTE: Aggiungi UseCors QUI
+app.UseCors(MyAllowSpecificOrigins);
+
+// app.UseRouting(); // In .NET 6+ UseRouting è spesso implicito, ma se lo avessi, UseCors andrebbe prima.
+
+// IMPORTANTE: L'ordine di UseAuthentication e UseAuthorization è corretto
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 // --- Fine Configurazione Pipeline HTTP ---
 
-// Opzionale: crea un file wwwroot/swagger-ui/custom.css per il pulsante di logout da Swagger
-// Se non vuoi questa funzionalità puoi omettere l'InjectStylesheet e la creazione del file
-// Esempio di custom.css:
-// .swagger-ui .topbar .download-url-wrapper { display: none }
-// .swagger-ui .topbar-wrapper a span { display: none }
-// .swagger-ui .topbar-wrapper a[href*="swagger.json"] { content: "API Specification"; }
-// .swagger-ui .auth-wrapper .authorize.locked { background-color: #4CAF50; }
-// .swagger-ui .auth-wrapper .authorize.unlocked { background-color: #f44336; }
-
+// Il codice per il custom.css di Swagger è un commento e può rimanere tale o essere rimosso
+// se non lo usi.
 
 app.Run();

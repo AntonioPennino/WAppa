@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WAppa")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5fb67f612523ac92ec705c90b374b5fcc61470e3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+892e63967e6f8ebe99684cc2af7b30c7c13ca60d")]
 [assembly: System.Reflection.AssemblyProductAttribute("WAppa")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WAppa")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

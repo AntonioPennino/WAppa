@@ -1,8 +1,10 @@
 // src/pages/LoginPage.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // useNavigate per il redirect dopo il login
-// Importeremo il servizio di autenticazione più avanti
-// import { loginUser } from '../services/authService'; 
+import { Link, useNavigate } from 'react-router-dom';
+import { loginUser, saveToken, setAuthHeader } from '../services/authService'; // Importa le funzioni necessarie
+
+// In futuro, importeremo AuthContext per aggiornare lo stato globale
+// import { useAuth } from '../contexts/AuthContext';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
@@ -10,6 +12,7 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  // const { login } = useAuth(); // Lo useremo con AuthContext
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,30 +25,31 @@ function LoginPage() {
       return;
     }
 
-    console.log('Login attempt with:', { username, password });
-    // Qui chiameremo il servizio di autenticazione
-    // try {
-    //   const response = await loginUser({ username, password });
-    //   console.log('Login successful:', response);
-    //   // Salva il token, aggiorna lo stato dell'utente (useremo Context API)
-    //   // Esempio: authContext.login(response.data.token, response.data.username);
-    //   navigate('/dashboard'); // Reindirizza al dashboard
-    // } catch (err) {
-    //   setError(err.response?.data?.message || 'Login failed. Please try again.');
-    // } finally {
-    //   setLoading(false);
-    // }
-    
-    // Simulazione per ora
-    setTimeout(() => {
-      if (username === "test" && password === "password") {
-        console.log("Simulated login successful");
-        navigate('/dashboard');
+    try {
+      const response = await loginUser({ username, password });
+      // response è l'oggetto { data: { token, username }, success, message }
+      
+      if (response.success && response.data?.token) {
+        console.log('Login successful:', response.data.username);
+        saveToken(response.data.token); // Salva il token in localStorage
+        setAuthHeader(); // Imposta l'header Authorization di default per Axios
+        
+        // Aggiorna lo stato di autenticazione globale (lo faremo con AuthContext)
+        // login(response.data.username, response.data.token); 
+
+        navigate('/dashboard'); // Reindirizza al dashboard
       } else {
-        setError('Invalid credentials (simulated).');
+        // Se success è false o non c'è token, usa il messaggio dal backend
+        setError(response.message || 'Login failed due to an unexpected issue.');
       }
+    } catch (err) {
+      // err qui dovrebbe essere l'oggetto ServiceResponse con Success=false
+      // o un errore generico se la chiamata API è fallita a un livello inferiore.
+      console.error('Login error caught in component:', err);
+      setError(err.message || 'Login failed. Please check your credentials or network connection.');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -59,6 +63,7 @@ function LoginPage() {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -69,6 +74,7 @@ function LoginPage() {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
