@@ -1,0 +1,82 @@
+# WAppa/.gitignore
+
+# === File .env di Docker Compose ===
+# Ignora il file .env usato da docker-compose.yml per i segreti e la configurazione
+.env
+
+# === Dipendenze e Output di Build del Backend .NET ===
+**/[Bb]in/
+**/[Oo]bj/
+**/[Tt]est[Rr]esults/ # Cartella dei risultati dei test, se usi test .NET
+
+# === File specifici degli IDE e del sistema operativo ===
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Rider
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === File di Database SQLite (se creato localmente fuori da Docker) ===
+# Se il file .db viene generato localmente durante lo sviluppo senza Docker
+# e non vuoi committarlo (perché ogni sviluppatore ha il suo, o usi solo quello di Docker).
+# *.db
+# *.db-journal
+# *.db-wal
+# *.db-shm
+# (Scommenta queste se hai un .db locale nella root che vuoi ignorare)
+# Nota: se il tuo weatherapp.db è gestito SOLO tramite volumi Docker,
+# e non hai una copia locale che viene modificata direttamente, potresti non aver bisogno di ignorarlo qui.
+# Ma è buona pratica ignorare i file di database locali.
+
+# === File di Log ===
+*.log
+logs/
+
+# === File di configurazione utente/locale (esempi) ===
+# appsettings.Development.json # A volte si committa, a volte no. Se contiene segreti, ignora.
+# secrets.json
+# usersecrets.id
+
+# === Pacchetti NuGet ===
+# Di solito non sono nella cartella del progetto ma in una cache globale,
+# ma per sicurezza se usi una configurazione locale di pacchetti:
+packages/
+*.nupkg
+
+# === File generati da Docker (se non sono già coperti) ===
+# Dockerfile e docker-compose.yml di solito SI committano.
+# Le immagini e i container non sono file, quindi non sono gestiti da .gitignore.
+
+# === Esclusioni specifiche per il Frontend (se la cartella Frontend fosse qui) ===
+# Ma dato che il frontend ha il suo .gitignore, questa sezione è meno critica qui,
+# a meno che non ci siano file a livello di root relativi al frontend.
+# Frontend/WAppa-frontend/node_modules/ (già gestito dal .gitignore del frontend)
+# Frontend/WAppa-frontend/dist/       (già gestito dal .gitignore del frontend)
+
+# === Altri file che non vuoi tracciare ===
+# Aggiungi qui altri file o cartelle specifici del tuo workflow
