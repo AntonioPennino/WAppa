@@ -102,6 +102,32 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// --- Inizio Applicazione Migrazioni ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
+        if (dbContext.Database.GetPendingMigrations().Any())
+        {
+            app.Logger.LogInformation("Applying database migrations...");
+            dbContext.Database.Migrate();
+            app.Logger.LogInformation("Database migrations applied successfully.");
+        }
+        else
+        {
+            app.Logger.LogInformation("No pending database migrations to apply.");
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+// --- Fine Applicazione Migrazioni ---
+
 // --- Inizio Configurazione Pipeline HTTP ---
 
 if (app.Environment.IsDevelopment())
