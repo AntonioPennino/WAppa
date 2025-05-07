@@ -1,8 +1,11 @@
 // src/pages/LoginPage.jsx
-import React, { useState, useEffect } from 'react'; // Aggiunto useEffect
-import { Link, useNavigate, useLocation } from 'react-router-dom'; // Aggiunto useLocation
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginUser } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
+
+// Opzionale: importare CSS Modules se vuoi stili ancora più specifici per questa pagina
+// import styles from './LoginPage.module.css'; 
 
 function LoginPage() {
   const [username, setUsername] = useState('');
@@ -11,18 +14,16 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
-  const location = useLocation(); // Per ottenere lo stato 'from'
-  const { login: contextLogin, isAuthenticated } = useAuth(); // Aggiunto isAuthenticated
+  const location = useLocation();
+  const { login: contextLogin, isAuthenticated } = useAuth();
 
-  const from = location.state?.from?.pathname || '/dashboard'; // Pagina di default a cui reindirizzare
+  const from = location.state?.from?.pathname || '/dashboard';
 
-  // Se l'utente è già loggato e arriva alla pagina di login, reindirizzalo
   useEffect(() => {
     if (isAuthenticated()) {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
-
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -39,13 +40,11 @@ function LoginPage() {
       const response = await loginUser({ username, password });       
       if (response.success && response.data?.token) {
         contextLogin(response.data.token);
-        console.log('Login API call successful. Token sent to AuthContext.');
-        navigate(from, { replace: true }); // Reindirizza alla pagina 'from' o a /dashboard
+        navigate(from, { replace: true });
       } else {
         setError(response.message || 'Login failed due to an unexpected issue.');
       }
     } catch (err) {
-      console.error('Login error caught in LoginPage component:', err);
       setError(err.message || 'Login failed. Please check your credentials or network connection.');
     } finally {
       setLoading(false);
@@ -53,11 +52,12 @@ function LoginPage() {
   };
 
   return (
-    // ... JSX del form (rimane lo stesso)
-    <div>
+    // Puoi aggiungere una classe contenitore se usi CSS Modules, es: <div className={styles.loginContainer}>
+    <div> 
       <h2>Login</h2>
+      {/* Il tag <form> ora riceverà gli stili da index.css */}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div> {/* Questo div raggruppa label e input e riceve stili da index.css */}
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -81,13 +81,14 @@ function LoginPage() {
             autoComplete="current-password"
           />
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {/* Applica la classe .error-message */}
+        {error && <p className="error-message">{error}</p>} 
         <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-      <p>
-        Don't have an account? <Link to="/register">Register here</Link>
+      <p style={{ marginTop: '20px' }}> {/* Aggiunto un po' di spazio sopra questo paragrafo */}
+        Don't have an account? <Link to="/register" style={{ color: '#3498db', fontWeight: 'bold' }}>Register here</Link>
       </p>
     </div>
   );

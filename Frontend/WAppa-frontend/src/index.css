@@ -1,68 +1,230 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* src/index.css */
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f7f6; /* Sfondo leggermente grigio */
+  color: #333; /* Colore testo principale */
+  line-height: 1.6;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+.App {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #2c3e50; /* Un blu/grigio scuro per i titoli */
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Stili di base per i pulsanti */
+button, 
+input[type="submit"] /* Applica anche a input submit */
+ {
+  background-color: #3498db; /* Blu primario */
+  color: white;
+  border: none;
+  padding: 10px 18px; /* Aumentato leggermente il padding */
+  border-radius: 5px;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  font-size: 1em;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+  text-decoration: none; /* Rimuove sottolineatura se applicato a link stilizzati come bottoni */
+  display: inline-block; /* Per corretto padding e margin */
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:hover,
+input[type="submit"]:hover {
+  background-color: #2980b9; /* Blu più scuro al hover */
+  transform: translateY(-1px); /* Leggero effetto al hover */
+}
+
+button:disabled,
+input[type="submit"]:disabled {
+  background-color: #bdc3c7; /* Grigio per pulsanti disabilitati */
+  color: #7f8c8d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Stili di base per gli input di testo */
+input[type="text"],
+input[type="password"],
+input[type="email"] /* Aggiunto email se lo userai */
+ {
+  padding: 10px;
+  margin-bottom: 15px; /* Spazio sotto l'input */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+  width: 100%; /* Occupa tutta la larghezza del contenitore del form */
+  max-width: 350px; /* Ma non più di 350px */
+}
+
+/* Contenitore per i form */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra gli elementi del form */
+  gap: 10px; /* Spazio tra gli elementi del form */
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 450px; /* Larghezza massima per i box dei form */
+  margin: 20px auto; /* Centra i box dei form */
+}
+
+form div { /* Div che raggruppa label e input */
+  width: 100%;
+  max-width: 350px; /* Coerente con la larghezza degli input */
+  text-align: left;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Stili per la navigazione */
+nav {
+  background-color: #ffffff;
+  padding: 15px 0;
+  border-bottom: 1px solid #e7e7e7;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 30px !important; /* Sovrascrive stile inline precedente */
+  border-radius: 8px;
+}
+
+nav ul {
+  list-style-type: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 25px !important; /* Aumentato gap */
+  align-items: center !important;
+}
+
+nav ul li a, 
+nav ul li button.nav-button /* Aggiunta classe per bottoni in nav */
+{
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500; /* Leggermente meno bold */
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+nav ul li button.nav-button { /* Stili specifici per il bottone di logout */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em; /* Per allineare la grandezza del font */
+}
+
+
+nav ul li a:hover,
+nav ul li button.nav-button:hover {
+  background-color: #ecf0f1; /* Sfondo leggero al hover */
+  color: #2980b9;
+}
+
+/* Messaggi di errore/successo generici */
+.error-message {
+  color: #c0392b; /* Rosso scuro */
+  background-color: #fdecea;
+  border: 1px solid #e74c3c;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.success-message {
+  color: #27ae60; /* Verde */
+  background-color: #eaf7f0;
+  border: 1px solid #2ecc71;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Aggiungi a src/index.css */
+
+.weather-card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px; /* Spazio tra le card */
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px 0; /* Rimosso margin laterale, gestito da gap */
+  width: 320px; /* Larghezza fissa per le card */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  text-align: left;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+.card h4 {
+  margin-top: 0;
+  color: #3498db; /* Blu per il nome della località */
+}
+
+.card p {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.weather-info-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.weather-info-section strong {
+    color: #2c3e50;
+}
+
+.italic-message {
+  font-style: italic;
+  color: #7f8c8d; /* Grigio per messaggi "non disponibile" */
+  margin-top: 10px;
+}
+
+.delete-button { /* Stile specifico per il pulsante delete */
+  background-color: #e74c3c !important; /* Rosso per delete, !important se necessario per sovrascrivere */
+  margin-top: 15px;
+}
+.delete-button:hover {
+  background-color: #c0392b !important; /* Rosso scuro al hover */
 }

@@ -1,16 +1,16 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import './App.css';
+import './App.css'; // Questo file potrebbe essere vuoto o avere stili specifici per App.jsx
 import { useAuth } from './contexts/AuthContext';
 
+// Importa le pagine e i componenti
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
-import ProtectedRoute from './components/ProtectedRoute'; // IMPORTA ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute';
 
-// ... (Il componente Navigation rimane lo stesso)
 function Navigation() {
   const { isAuthenticated, logout, currentUser } = useAuth();
   const navigate = useNavigate();
@@ -21,14 +21,15 @@ function Navigation() {
   };
 
   return (
-    <nav style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
-      <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
+    <nav> {/* Rimossi stili inline, ora gestiti da index.css */}
+      <ul> {/* Rimossi stili inline */}
         <li><Link to="/">Home</Link></li>
         {isAuthenticated() ? (
           <>
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li>
-              <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '1em' }}>
+              {/* Aggiunta classe nav-button per il bottone di logout */}
+              <button onClick={handleLogout} className="nav-button">
                 Logout ({currentUser?.username || 'User'})
               </button>
             </li>
@@ -44,26 +45,22 @@ function Navigation() {
   );
 }
 
-
 function App() {
   const { loadingAuth } = useAuth();
 
   if (loadingAuth) {
-    return <div>Loading application...</div>; 
+    return <div className="loading-app">Loading application...</div>; // Aggiunta classe
   }
 
   return (
     <Router>
-      <div className="App">
+      <div className="App"> {/* Questa classe è già definita in index.css */}
         <Navigation />
         
         <Routes>
-          {/* Route Pubbliche */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Route Protette */}
           <Route 
             path="/dashboard" 
             element={
@@ -72,18 +69,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          {/* Puoi aggiungere altre route protette allo stesso modo */}
-          {/* Esempio:
-          <Route 
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          */}
-
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
