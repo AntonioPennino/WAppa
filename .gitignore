@@ -80,3 +80,5 @@ packages/
 
 # === Altri file che non vuoi tracciare ===
 # Aggiungi qui altri file o cartelle specifici del tuo workflow
+
+.fake

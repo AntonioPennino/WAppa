@@ -1,72 +1,38 @@
-# WAppa/docker-compose.yml
-version: '3.8' # Specifica la versione della sintassi di Docker Compose
+# WAppa/docker-compose.yml (Sezione backend modificata)
 
 services:
-  # --- Servizio Backend (.NET API) ---
   backend:
     build:
-      # Percorso alla cartella che contiene il Dockerfile del backend.
-      # Modifica questo percorso se la tua struttura è diversa.
-      # Esempio: se il Dockerfile del backend è in WAppa/BackendApiProject/
-      # context: ./BackendApiProject 
-      context: ./ # Assumendo che il Dockerfile del backend sia in WAppa/
-      dockerfile: Dockerfile # Nome del Dockerfile (se diverso da 'Dockerfile')
+      context: ./ 
+      dockerfile: Dockerfile
     container_name: wappa-backend
     ports:
-      # Mappa la porta dell'host alla porta del container: "HOST_PORT:CONTAINER_PORT"
-      # Kestrel nel container ascolterà sulla porta specificata da ASPNETCORE_URLS (es. 5278).
-      - "5278:5278" 
+      # Usa le variabili dal .env per le porte, con fallback se non definite
+      - "${BACKEND_HOST_PORT:-5278}:${BACKEND_INTERNAL_PORT:-5278}" 
     environment:
-      # Imposta l'ambiente ASP.NET Core. Utile per appsettings.Development.json etc.
-      - ASPNETCORE_ENVIRONMENT=Development 
-      # Dice a Kestrel su quale URL/porta ascoltare ALL'INTERNO del container.
-      # Il '+' significa ascoltare su tutte le interfacce di rete disponibili nel container.
-      - ASPNETCORE_URLS=http://+:5278
-      # ----- Variabili d'ambiente per il backend -----
-      # È MEGLIO gestire i segreti tramite un file .env a livello di docker-compose o Docker secrets.
-      # Esempio per il token JWT (sostituisci con il tuo valore o usa un file .env):
-      - "AppSettings__Token=LA_TUA_LUNGA_E_COMPLESSA_CHIAVE_SEGRETA_DAL_APPSETTINGS_JSON"
-      # Esempio per la stringa di connessione SQLite (se usi volumi):
-      # Assicurati che il percorso /app/database/ corrisponda a dove il volume viene montato sotto.
-      - "ConnectionStrings__DefaultConnection=Data Source=/app/database/weatherapp.db"
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development} 
+      - ASPNETCORE_URLS=http://+:${BACKEND_INTERNAL_PORT:-5278}
+      # Leggi il token JWT dal file .env
+      - AppSettings__Token=${APPSETTINGS_TOKEN} 
+      # Leggi la stringa di connessione dal file .env
+      - ConnectionStrings__DefaultConnection=${CONNECTIONSTRINGS_DEFAULTCONNECTION} 
     volumes:
-      # ----- Volume per persistere il database SQLite (Opzionale ma Consigliato) -----
-      # Crea un volume Docker chiamato 'wappa_db_data' e lo mappa a /app/database nel container.
-      # L'applicazione nel container dovrà salvare il file .db in /app/database/.
-      # Se la tua stringa di connessione punta a 'Data Source=weatherapp.db' (relativo),
-      # e WORKDIR è /app, allora il DB sarà /app/weatherapp.db.
-      # In tal caso, potresti mappare a /app:
-      # - wappa_db_data:/app # Questo monterebbe l'intero /app, che potrebbe non essere ideale.
-      # È meglio avere una sottocartella dedicata per i dati.
-      # Se il DB viene creato in 'Data/weatherapp.db' relativo alla WORKDIR /app,
-      # allora il percorso interno è /app/Data/weatherapp.db.
       - wappa_db_data:/app/Data 
-      # (Assicurati che la stringa di connessione in appsettings o passata qui sia coerente con questo percorso)
-    restart: unless-stopped # Riavvia il container a meno che non sia stato fermato manualmente.
-
-  # --- Servizio Frontend (React App servita da Nginx) ---
-  frontend:
-    build:
-      # Percorso alla cartella che contiene il Dockerfile del frontend.
-      context: ./Frontend/WAppa-frontend # Adatta questo percorso!
-      dockerfile: Dockerfile
-      args:
-        # Passa l'URL del backend al Dockerfile del frontend durante la build.
-        # 'backend' è il nome del servizio backend definito sopra. Docker Compose lo risolve.
-        # '5278' è la porta su cui il container backend ascolta INTERNAMENTE ALLA RETE DOCKER.
-        # Questo valore verrà usato per ENV VITE_API_BASE_URL nel Dockerfile del frontend.
-        VITE_API_BASE_URL_ARG: http://backend:5278/api 
-    container_name: wappa-frontend
-    ports:
-      # Mappa la porta dell'host alla porta del container: "HOST_PORT:CONTAINER_PORT"
-      # Nginx nel container ascolta sulla porta 80.
-      - "5173:80" 
-    depends_on:
-      - backend # Assicura che il servizio backend venga avviato prima del frontend.
     restart: unless-stopped
 
-# ----- Definizione dei Volumi (Opzionale ma Consigliato per il DB) -----
-# Questo crea un "named volume" gestito da Docker per i dati del database.
-# I dati in questo volume persistono anche se i container vengono rimossi.
+  frontend:
+    build:
+      context: ./Frontend/WAppa-frontend
+      dockerfile: Dockerfile
+      args:
+        # Usa la variabile BACKEND_INTERNAL_PORT dal .env per consistenza
+        VITE_API_BASE_URL_ARG: http://backend:${BACKEND_INTERNAL_PORT:-5278}/api 
+    container_name: wappa-frontend
+    ports:
+      - "${FRONTEND_HOST_PORT:-5173}:80" 
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
-  wappa_db_data:
+  wappa_db_data: {} # Assicurati che questo nome corrisponda a quello usato in backend.volumes
