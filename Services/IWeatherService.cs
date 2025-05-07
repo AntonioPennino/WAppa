@@ -6,6 +6,7 @@ namespace WeatherApp.Services
 {
     public interface IWeatherService
     {
-        Task<ServiceResponse<WeatherForecastDto>> GetWeatherDataAsync(double latitude, double longitude);
+        // AGGIUNTO il parametro opzionale locationNameFromGeocoding
+        Task<ServiceResponse<WeatherForecastDto>> GetWeatherDataAsync(double latitude, double longitude, string? locationNameFromGeocoding = null);
     }
 }

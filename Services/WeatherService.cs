@@ -22,24 +22,21 @@ namespace WeatherApp.Services
             _logger = logger;
         }
 
-        public async Task<ServiceResponse<WeatherForecastDto>> GetWeatherDataAsync(double latitude, double longitude)
+        // MODIFICATA LA FIRMA per includere locationNameFromGeocoding
+        public async Task<ServiceResponse<WeatherForecastDto>> GetWeatherDataAsync(double latitude, double longitude, string? locationNameFromGeocoding = null)
         {
             var response = new ServiceResponse<WeatherForecastDto>();
-            var httpClient = _httpClientFactory.CreateClient("OpenMeteoClient");
+            var httpClient = _httpClientFactory.CreateClient("OpenMeteoClient"); // Assicurati che "OpenMeteoClient" sia registrato o usa CreateClient() senza nome
 
-            // Parametri per l'API: includiamo dati correnti e giornalieri
-            // Nota: "current" invece di "current_weather" per le nuove API
-            // temperature_unit=celsius e wind_speed_unit=kmh sono opzionali, l'API ha dei default
             string currentParams = "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m";
             string dailyParams = "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,uv_index_max";
             
-            // Formattiamo latitudine e longitudine con il punto come separatore decimale, indipendentemente dalla cultura corrente
             string latStr = latitude.ToString(CultureInfo.InvariantCulture);
             string lonStr = longitude.ToString(CultureInfo.InvariantCulture);
 
             string requestUrl = $"{OpenMeteoApiUrl}?latitude={latStr}&longitude={lonStr}&current={currentParams}&daily={dailyParams}&timezone=auto&forecast_days=7";
-            // Ho usato `current` invece di `current_weather` per allinearsi con le versioni più recenti dell'API.
-            // Se `current_weather` funziona meglio per te, puoi cambiarlo e adattare il DTO `OpenMeteoWeatherResponseDto`.
+            
+            _logger.LogInformation("Requesting weather data from URL: {RequestUrl} for location name (if provided): {LocationName}", requestUrl, locationNameFromGeocoding ?? "N/A");
 
             try
             {
@@ -47,11 +44,13 @@ namespace WeatherApp.Services
 
                 if (apiResponse != null)
                 {
-                    response.Data = MapToWeatherForecastDto(apiResponse);
+                    // PASSA locationNameFromGeocoding al metodo di mapping
+                    response.Data = MapToWeatherForecastDto(apiResponse, locationNameFromGeocoding);
                     response.Message = "Weather data retrieved successfully.";
                 }
                 else
                 {
+                    _logger.LogWarning("Failed to retrieve weather data or API response was null for lat: {Latitude}, lon: {Longitude}", latitude, longitude);
                     response.Success = false;
                     response.Message = "Failed to retrieve weather data or data was empty.";
                 }
@@ -72,14 +71,17 @@ namespace WeatherApp.Services
             return response;
         }
 
-        private WeatherForecastDto MapToWeatherForecastDto(OpenMeteoWeatherResponseDto apiData)
+        // MODIFICATA LA FIRMA per includere explicitLocationName
+        private WeatherForecastDto MapToWeatherForecastDto(OpenMeteoWeatherResponseDto apiData, string? explicitLocationName)
         {
             var forecastDto = new WeatherForecastDto
             {
+                // USA explicitLocationName se fornito, altrimenti usa un fallback (o lascialo vuoto)
+                LocationName = explicitLocationName ?? apiData.Timezone.Split('/').LastOrDefault() ?? string.Empty,
                 Latitude = apiData.Latitude,
                 Longitude = apiData.Longitude,
                 Timezone = apiData.Timezone,
-                Current = apiData.CurrentWeather != null ? new CurrentConditionsDto // apiData.Current per nuove API
+                Current = apiData.CurrentWeather != null ? new CurrentConditionsDto
                 {
                     Time = apiData.CurrentWeather.Time,
                     Temperature = apiData.CurrentWeather.Temperature,
@@ -97,30 +99,47 @@ namespace WeatherApp.Services
             {
                 for (int i = 0; i < apiData.Daily.Time.Count; i++)
                 {
-                    forecastDto.Daily.Add(new DailyForecastDto
+                    // Assicurati che gli array di dati giornalieri abbiano abbastanza elementi
+                    // Questo previene IndexOutOfRangeException se alcuni dati sono mancanti
+                    if (i < apiData.Daily.TemperatureMax.Count &&
+                        i < apiData.Daily.TemperatureMin.Count &&
+                        i < apiData.Daily.ApparentTemperatureMax.Count &&
+                        i < apiData.Daily.ApparentTemperatureMin.Count &&
+                        i < apiData.Daily.WeatherCode.Count &&
+                        i < apiData.Daily.Sunrise.Count &&
+                        i < apiData.Daily.Sunset.Count &&
+                        i < apiData.Daily.PrecipitationSum.Count &&
+                        // i < apiData.Daily.PrecipitationProbabilityMax.Count && // PrecipitationProbabilityMax può essere nullabile e avere meno elementi
+                        i < apiData.Daily.WindSpeedMax.Count)
                     {
-                        Date = apiData.Daily.Time[i],
-                        TemperatureMax = apiData.Daily.TemperatureMax[i],
-                        TemperatureMin = apiData.Daily.TemperatureMin[i],
-                        ApparentTemperatureMax = apiData.Daily.ApparentTemperatureMax[i],
-                        ApparentTemperatureMin = apiData.Daily.ApparentTemperatureMin[i],
-                        WeatherCode = apiData.Daily.WeatherCode[i],
-                        Sunrise = apiData.Daily.Sunrise[i],
-                        Sunset = apiData.Daily.Sunset[i],
-                        PrecipitationSum = apiData.Daily.PrecipitationSum[i],
-                        PrecipitationProbabilityMax = apiData.Daily.PrecipitationProbabilityMax.Count > i ? apiData.Daily.PrecipitationProbabilityMax[i] : null,
-                        WindSpeedMax = apiData.Daily.WindSpeedMax[i],
-                        WeatherDescription = GetWeatherDescription(apiData.Daily.WeatherCode[i])
-                    });
+                        forecastDto.Daily.Add(new DailyForecastDto
+                        {
+                            Date = apiData.Daily.Time[i],
+                            TemperatureMax = apiData.Daily.TemperatureMax[i],
+                            TemperatureMin = apiData.Daily.TemperatureMin[i],
+                            ApparentTemperatureMax = apiData.Daily.ApparentTemperatureMax[i],
+                            ApparentTemperatureMin = apiData.Daily.ApparentTemperatureMin[i],
+                            WeatherCode = apiData.Daily.WeatherCode[i],
+                            Sunrise = apiData.Daily.Sunrise[i],
+                            Sunset = apiData.Daily.Sunset[i],
+                            PrecipitationSum = apiData.Daily.PrecipitationSum[i],
+                            PrecipitationProbabilityMax = (apiData.Daily.PrecipitationProbabilityMax != null && i < apiData.Daily.PrecipitationProbabilityMax.Count) ? apiData.Daily.PrecipitationProbabilityMax[i] : null,
+                            WindSpeedMax = apiData.Daily.WindSpeedMax[i],
+                            WeatherDescription = GetWeatherDescription(apiData.Daily.WeatherCode[i])
+                        });
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Inconsistent daily data array lengths for index {Index} at lat: {Latitude}, lon: {Longitude}. Skipping this day.", i, apiData.Latitude, apiData.Longitude);
+                    }
                 }
             }
             return forecastDto;
         }
 
-        // Semplice mappatura del WMO Weather code alla descrizione (puoi espanderla)
-        // Fonte: https://open-meteo.com/en/docs WMO Weather interpretation codes (WW)
         private string GetWeatherDescription(int weatherCode)
         {
+            // ... (la funzione GetWeatherDescription rimane invariata)
             return weatherCode switch
             {
                 0 => "Sereno",

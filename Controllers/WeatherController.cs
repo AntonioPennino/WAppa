@@ -24,11 +24,6 @@ namespace WeatherApp.Controllers
             _logger = logger;
         }
 
-        // Endpoint per ottenere dati meteo
-        // Esempi di chiamata:
-        // GET /api/weather?latitude=41.90&longitude=12.49
-        // GET /api/weather?query=Roma
-        // GET /api/weather?query=90210
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<WeatherForecastDto>>> GetWeather(
             [FromQuery] double? latitude,
@@ -36,33 +31,41 @@ namespace WeatherApp.Controllers
             [FromQuery] string? query)
         {
             var response = new ServiceResponse<WeatherForecastDto>();
+            _logger.LogInformation("WeatherController: Received request with Lat={Lat}, Lon={Lon}, Query='{Query}'", latitude, longitude, query);
+
 
             if (latitude.HasValue && longitude.HasValue)
             {
-                // Caso 1: Latitudine e Longitudine fornite
-                _logger.LogInformation("Fetching weather for Latitude: {Latitude}, Longitude: {Longitude}", latitude.Value, longitude.Value);
-                response = await _weatherService.GetWeatherDataAsync(latitude.Value, longitude.Value);
+                _logger.LogInformation("WeatherController: Using provided coordinates Lat={Lat}, Lon={Lon} to fetch weather.", latitude.Value, longitude.Value);
+                // Quando si usano lat/lon diretti, non abbiamo un nome geocodificato, quindi locationNameFromGeocoding sarà null.
+                // Il WeatherService userà il fallback (es. timezone) per LocationName.
+                // Oppure, potremmo provare a fare un "reverse geocoding" qui se volessimo un nome, ma aumenterebbe la complessità.
+                // O potremmo passare la query originale se fosse in qualche modo rilevante (ma qui non c'è query).
+                response = await _weatherService.GetWeatherDataAsync(latitude.Value, longitude.Value, locationNameFromGeocoding: query); // Passiamo query se presente, altrimenti null
             }
             else if (!string.IsNullOrWhiteSpace(query))
             {
-                // Caso 2: Query (nome città/CAP) fornita
-                _logger.LogInformation("Fetching weather for query: {Query}", query);
+                _logger.LogInformation("WeatherController: Geocoding query '{Query}'", query);
                 var geocodeResponse = await _geocodingService.GetCoordinatesAsync(query);
 
                 if (!geocodeResponse.Success || geocodeResponse.Data == null)
                 {
+                    _logger.LogWarning("WeatherController: Geocoding failed or no data for query '{Query}'. Message: {Msg}", query, geocodeResponse.Message);
                     response.Success = false;
                     response.Message = geocodeResponse.Message ?? $"Could not find coordinates for '{query}'.";
                     return NotFound(response);
                 }
 
                 var geoData = geocodeResponse.Data;
-                _logger.LogInformation("Geocoded '{Query}' to Latitude: {Latitude}, Longitude: {Longitude}", query, geoData.Latitude, geoData.Longitude);
-                response = await _weatherService.GetWeatherDataAsync(geoData.Latitude, geoData.Longitude);
+                _logger.LogInformation("WeatherController: Geocoding for '{Query}' successful. Result: Name='{Name}', Lat={Lat}, Lon={Lon}", query, geoData.Name, geoData.Latitude, geoData.Longitude);
+
+                _logger.LogInformation("WeatherController: Fetching weather for geocoded coordinates Lat={Lat}, Lon={Lon} with LocationName='{LocationName}'", geoData.Latitude, geoData.Longitude, geoData.Name);
+                // PASSA geoData.Name (il nome dalla geocodifica) a GetWeatherDataAsync
+                response = await _weatherService.GetWeatherDataAsync(geoData.Latitude, geoData.Longitude, geoData.Name); 
             }
             else
             {
-                // Caso 3: Input non valido
+                _logger.LogWarning("WeatherController: Invalid request parameters. Latitude/Longitude or Query must be provided.");
                 response.Success = false;
                 response.Message = "Please provide either 'latitude' and 'longitude' or a 'query' parameter.";
                 return BadRequest(response);
@@ -70,13 +73,12 @@ namespace WeatherApp.Controllers
 
             if (!response.Success)
             {
-                // Se il WeatherService fallisce per qualche motivo (es. API esterna non disponibile)
-                // Potremmo voler restituire un codice di stato più specifico se il ServiceResponse lo indicasse,
-                // ma per ora un 500 generico se Success è false e non è stato gestito prima è ok.
-                _logger.LogWarning("WeatherService call failed or returned no data. Message: {Message}", response.Message);
-                return StatusCode(response.Data == null ? 404 : 500, response); 
+                _logger.LogWarning("WeatherController: WeatherService call failed or returned no data for Lat={Lat}, Lon={Lon}, Query='{Query}'. Message: {Message}", latitude, longitude, query, response.Message);
+                // Determina lo status code in base al messaggio o a un campo specifico di errore se disponibile
+                return StatusCode(response.Data == null && response.Message.Contains("Could not find coordinates") ? 404 : 500, response); 
             }
-
+            
+            _logger.LogInformation("WeatherController: Successfully retrieved weather data for Lat={Lat}, Lon={Lon}, Query='{Query}'", latitude, longitude, query);
             return Ok(response);
         }
     }
