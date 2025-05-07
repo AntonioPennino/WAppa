@@ -44,10 +44,10 @@ Desktop.ini
 # === File di Database SQLite (se creato localmente fuori da Docker) ===
 # Se il file .db viene generato localmente durante lo sviluppo senza Docker
 # e non vuoi committarlo (perché ogni sviluppatore ha il suo, o usi solo quello di Docker).
-# *.db
-# *.db-journal
-# *.db-wal
-# *.db-shm
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 # (Scommenta queste se hai un .db locale nella root che vuoi ignorare)
 # Nota: se il tuo weatherapp.db è gestito SOLO tramite volumi Docker,
 # e non hai una copia locale che viene modificata direttamente, potresti non aver bisogno di ignorarlo qui.
