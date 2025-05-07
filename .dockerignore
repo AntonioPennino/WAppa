@@ -1,0 +1,29 @@
+# WAppa/.dockerignore (o nella cartella del tuo progetto backend principale)
+
+**/.classpath
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/azds.yaml
+**/bin
+**/charts
+**/docker-compose*
+**/Dockerfile*
+**/obj
+**/secrets.dev.yaml
+**/values.dev.yaml
+Frontend/
+LICENSE
+README.md
+
+# Specifici per il tuo progetto se necessario:
+# Frontend/ # Se il Dockerfile del backend è nella root WAppa/ e non vuoi copiare il frontend

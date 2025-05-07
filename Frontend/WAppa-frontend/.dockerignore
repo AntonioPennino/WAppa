@@ -1,0 +1,23 @@
+# WAppa/Frontend/WAppa-frontend/.dockerignore
+
+# Dipendenze Node
+node_modules/
+
+# Output della build
+dist/
+build/ # Se il tuo script di build usa 'build' invece di 'dist'
+
+# File di ambiente locali (VITE_API_BASE_URL viene passato come ARG di build)
+.env* 
+!./.env.example # Potresti voler tenere .env.example se lo committi
+
+# Log e file specifici dell'IDE/OS
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.vscode/
+.idea/
+
+# Certificati locali (se li hai messi qui)
+certs/ 
